@@ -7,18 +7,24 @@ class WeatherObject {
     this.country = data.location.country
     if (type === "current" || type === "forecast") {
       this.condition = data.current.condition.text
+      this.icon = data.current.condition.icon
       this.temperature = data.current.temp_c
       this.feelsLike = data.current.feelslike_c
       this.precipitation = data.current.precip_mm
       this.pressure = data.current.pressure_mb
+      this.cloud = data.current.cloud
+      this.humidity = data.current.humidity
     } else if (type === "history") {
       this.condition =
         data.forecast.forecastday[0].hour[date.hour].condition.text
+      this.icon = data.forecast.forecastday[0].hour[date.hour].condition.icon
       this.temperature = data.forecast.forecastday[0].hour[date.hour].temp_c
       this.feelsLike = data.forecast.forecastday[0].hour[date.hour].feelslike_c
       this.precipitation =
         data.forecast.forecastday[0].hour[date.hour].precip_mm
       this.pressure = data.forecast.forecastday[0].hour[date.hour].pressure_mb
+      this.cloud = data.forecast.forecastday[0].hour[date.hour].cloud
+      this.humidity = data.forecast.forecastday[0].hour[date.hour].humidity
     }
   }
 }
@@ -33,6 +39,7 @@ async function getData(townID, type, date) {
 
 async function makeTown(townID, type, date) {
   const data = await getData(townID, type, date)
+  console.log(data)
   const town = new WeatherObject(data, type, date)
   return town
 }
@@ -57,32 +64,57 @@ async function getAutocompletion(inp) {
 
 async function logTownWeather(townName, type, date) {
   const town = await makeTown(townName, type, date)
-  console.log(town)
   return town
 }
 
 async function logTownNames(input) {
   const suggestion = await getAutocompletion(input)
-  console.log(suggestion)
   return suggestion
 }
 
-/* async function display() {
+async function display() {
   const display = document.querySelector(".display")
+  const header = document.createElement("div")
+  header.setAttribute("class", "header")
+  const overview = document.createElement("div")
+  overview.setAttribute("class", "overview")
+  const info = document.createElement("div")
+  info.setAttribute("class", "info")
+
   const input = document.querySelector("input")
   const res = await logTownWeather(input.value, "current", {})
-  const div = document.createElement("div")
-  div.setAttribute("class", "container")
-  div.innerHTML = `<pre>
-  Name: ${res.name}
-  Region: ${res.region}
-  Country: ${res.country}
-  Condition: ${res.condition}
-  Temperature: ${res.temperature}
-  Feelslike Temperature: ${res.feelsLike}</pre>
+
+  const regex = /[a-z]*\/[0-9a-z.]*$/gm
+  const iconSRC = `./weather/64x64/${res.icon.match(regex)}`
+
+  header.innerHTML = `
+  <div class="name">Name: ${res.name}</div>
+  <div class="region">Region: ${res.region}</div>
+  <div class="country">Country: ${res.country}</div>
   `
-  display.appendChild(div)
-} */
+  overview.innerHTML = `
+  <div class="condition">Condition: ${res.condition}</div>
+  <div class="temperature">Temperature: ${res.temperature}&deg;C</div>
+  <div class="feelslike">Feelslike Temperature: ${res.feelsLike}&deg;C</div>
+  <div class="icon"><img src=${iconSRC}></img></div>
+  `
+  info.innerHTML = `
+  <div class="precipitation">Precipitation: ${res.precipitation} mm</div>
+  <div class="humidity">Humidity: ${res.humidity}%</div>
+  <div class="cloud">Cloud cover: ${res.cloud}%</div>
+  <div class="pressure">Pressure: ${res.pressure} hPa</div>
+   `
+  display.appendChild(header)
+  display.appendChild(overview)
+  display.appendChild(info)
+}
+
+function init() {
+  const confirm = document.querySelector("#confirm")
+  confirm.addEventListener("click", display)
+}
+
+init()
 
 //DOM manipulation template
 //for (let element of suggestion) {
@@ -92,4 +124,4 @@ async function logTownNames(input) {
 //logTownNames("Lon")
 //logTownWeather("Wroclaw", "history", { date: "&dt=2024-03-13", hour: 17 })
 //logTownWeather("London", "forecast", { date: "&days=1" })
-//logTownWeather("London", "current", {})
+//logTownWeather("Boca Chica", "current", {})
