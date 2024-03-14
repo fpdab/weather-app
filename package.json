@@ -1,0 +1,33 @@
+{
+  "name": "weather-app",
+  "version": "1.0.0",
+  "description": "weather-app",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "build": "webpack",
+    "dev": "webpack serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/fpdab/weather-app.git"
+  },
+  "author": "Filip Dabek",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fpdab/weather-app/issues"
+  },
+  "homepage": "https://github.com/fpdab/weather-app#readme",
+  "devDependencies": {
+    "css-loader": "^6.10.0",
+    "html-webpack-plugin": "^5.6.0",
+    "style-loader": "^3.3.4",
+    "watch": "^0.13.0",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.3"
+  },
+  "dependencies": {
+    "moment": "^2.30.1"
+  }
+}

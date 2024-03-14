@@ -1,3 +1,5 @@
+import date from "date-and-time"
+
 const key = `f4e2c2e239134ea482f94754241103`
 
 class WeatherObject {
@@ -14,6 +16,7 @@ class WeatherObject {
       this.pressure = data.current.pressure_mb
       this.cloud = data.current.cloud
       this.humidity = data.current.humidity
+      this.last_updated = data.current.last_updated
     } else if (type === "history") {
       this.condition =
         data.forecast.forecastday[0].hour[date.hour].condition.text
@@ -25,6 +28,8 @@ class WeatherObject {
       this.pressure = data.forecast.forecastday[0].hour[date.hour].pressure_mb
       this.cloud = data.forecast.forecastday[0].hour[date.hour].cloud
       this.humidity = data.forecast.forecastday[0].hour[date.hour].humidity
+      this.last_updated =
+        data.forecast.forecastday[0].hour[date.hour].last_updated
     }
   }
 }
@@ -74,6 +79,12 @@ async function logTownNames(input) {
 
 async function display() {
   const display = document.querySelector(".display")
+  const chosenDate = document.querySelector("#date").value
+
+  while (display.firstChild) {
+    display.firstChild.remove()
+  }
+
   const header = document.createElement("div")
   header.setAttribute("class", "header")
   const overview = document.createElement("div")
@@ -81,28 +92,34 @@ async function display() {
   const info = document.createElement("div")
   info.setAttribute("class", "info")
 
-  const input = document.querySelector("input")
-  const res = await logTownWeather(input.value, "current", {})
+  const town = document.querySelector("#town")
+  let todayDate = new Date()
+  todayDate = date.format(todayDate, "YYYY-MM-DD")
+  //if (chosenDate === todayDate)
+  const res = await logTownWeather(town.value, "current", {})
 
   const regex = /[a-z]*\/[0-9a-z.]*$/gm
   const iconSRC = `./weather/64x64/${res.icon.match(regex)}`
 
   header.innerHTML = `
-  <div class="name">Name: ${res.name}</div>
-  <div class="region">Region: ${res.region}</div>
-  <div class="country">Country: ${res.country}</div>
+  <div class="name">${res.name}</div>
+  <div class="region">${res.region}</div>
+  <div class="country">${res.country}</div>
+  <div class="time">${res.last_updated}</div>
   `
   overview.innerHTML = `
-  <div class="condition">Condition: ${res.condition}</div>
-  <div class="temperature">Temperature: ${res.temperature}&deg;C</div>
-  <div class="feelslike">Feelslike Temperature: ${res.feelsLike}&deg;C</div>
   <div class="icon"><img src=${iconSRC}></img></div>
+  <div class="temperatures">
+  <div class="temperature">${res.temperature}&deg;C</div>
+  <div class="feelslike">Feels Like <div class="number">${res.feelsLike}&deg;C</div></div>
+  </div>
+  <div class="condition"><p>${res.condition}</p></div>
   `
   info.innerHTML = `
-  <div class="precipitation">Precipitation: ${res.precipitation} mm</div>
-  <div class="humidity">Humidity: ${res.humidity}%</div>
-  <div class="cloud">Cloud cover: ${res.cloud}%</div>
-  <div class="pressure">Pressure: ${res.pressure} hPa</div>
+  <div class="precipitation">Precipitation: </div><div class="number">${res.precipitation} mm</div><hr>
+  <div class="humidity">Humidity: </div><div class="number">${res.humidity}%</div><hr>
+  <div class="cloud">Cloud cover: </div><div class="number">${res.cloud}%</div><hr>
+  <div class="pressure">Pressure: </div><div class="number">${res.pressure} hPa</div>
    `
   display.appendChild(header)
   display.appendChild(overview)
