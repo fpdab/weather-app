@@ -130,3 +130,34 @@ body {
   background-color: whitesmoke;
   cursor: grab;
 }
+
+.startpage {
+  position: absolute;
+  box-shadow: none;
+  height: 15rem;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+}
+.startpage p {
+  text-align: center;
+  color: rgba(46, 139, 9, 0.3);
+}
+
+.startpage img {
+  position: absolute;
+  opacity: 0.5;
+}
+
+.startpage #sun {
+  left: 1rem;
+}
+
+.startpage #moon {
+  right: 1rem;
+}
+
+.startpage .explanation {
+  font-size: 1.5rem;
+  color: rgba(46, 139, 9, 0.5);
+}

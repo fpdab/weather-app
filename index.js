@@ -108,6 +108,9 @@ async function logTownNames(input) {
 }
 
 function display(res) {
+  const startpage = document.querySelector(".startpage")
+  startpage.style.visibility = "hidden"
+
   const display = document.querySelector(".display")
 
   while (display.firstChild) {
@@ -216,6 +219,8 @@ function init() {
   townBox.addEventListener("keyup", () => {
     toggleSuggestions(townBox.value)
   })
+  const startpage = document.querySelector(".startpage")
+  startpage.style.visibility = "visible"
 }
 
 init()
