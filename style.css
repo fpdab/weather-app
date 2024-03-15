@@ -18,9 +18,9 @@ body {
 
 .main-container {
   display: grid;
-  grid: 1fr 0.2fr / 1fr;
+  grid: 1fr 0.25fr / 1fr;
   width: 40rem;
-  height: 20rem;
+  height: 21rem;
   justify-self: center;
   background-color: white;
   border-radius: 1rem;
@@ -95,8 +95,13 @@ body {
 .input-field {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   gap: 2rem;
+}
+
+.input-field .time {
+  display: flex;
+  flex-direction: column;
 }
 
 .input-field .hour {
