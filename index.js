@@ -184,6 +184,31 @@ async function chooseAPI() {
   }
 }
 
+async function toggleSuggestions(currentInput) {
+  const toggleBox = document.querySelector(".toggle-box")
+  const townBox = document.querySelector(".input-field #town")
+
+  while (toggleBox.firstChild) {
+    toggleBox.firstChild.remove()
+  }
+
+  if (currentInput.length > 2) {
+    toggleBox.style.visibility = "visible"
+    const list = await logTownNames(currentInput)
+
+    list.forEach((element) => {
+      const suggestion = document.createElement("div")
+      suggestion.setAttribute("class", "suggestion")
+      suggestion.textContent = element.name
+      suggestion.addEventListener("click", () => {
+        townBox.value = element.name
+        toggleBox.style.visibility = "hidden"
+      })
+      toggleBox.appendChild(suggestion)
+    })
+  }
+}
+
 function init() {
   const confirm = document.querySelector("#confirm")
   confirm.addEventListener("click", chooseAPI)
@@ -194,27 +219,3 @@ function init() {
 }
 
 init()
-//logTownWeather("Wroclaw", "history", { date: "&dt=2024-03-13", hour: 17 })
-//logTownWeather("Boca Chica", "current", {})
-
-async function toggleSuggestions(currentInput) {
-  const toggleBox = document.querySelector(".toggle-box")
-  const townBox = document.querySelector(".input-field #town")
-
-  while (toggleBox.firstChild) {
-    toggleBox.firstChild.remove()
-  }
-  if (currentInput.length > 2) {
-    const list = await logTownNames(currentInput)
-
-    list.forEach((element) => {
-      const suggestion = document.createElement("div")
-      suggestion.setAttribute("class", "suggestion")
-      suggestion.textContent = element.name
-      suggestion.addEventListener("click", () => {
-        townBox.value = element.name
-      })
-      toggleBox.appendChild(suggestion)
-    })
-  }
-}

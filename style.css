@@ -13,7 +13,7 @@ body {
   height: 100vh;
   width: 100vw;
   display: grid;
-  padding: 1rem;
+  padding: 3rem;
 }
 
 .main-container {
@@ -68,6 +68,7 @@ body {
 .display .overview .condition {
   grid-column: span 2;
   padding: 1rem;
+  padding-bottom: 0.5rem;
   color: rgba(50, 117, 11, 0.7);
   font-weight: 700;
   font-size: 1.5rem;
@@ -117,13 +118,10 @@ body {
   border-radius: 0.1rem;
   border-color: black;
   border: 0.5px solid;
+  visibility: hidden;
 }
 
 .input-field .toggle-box .suggestion:hover {
   background-color: whitesmoke;
   cursor: grab;
-}
-
-.input-field .name-box:has(input:focus) .toggle-box {
-  display: ;
 }
