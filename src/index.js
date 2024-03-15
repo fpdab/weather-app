@@ -1,5 +1,4 @@
-import date from "date-and-time"
-
+import "./styles/main.css"
 const key = `f4e2c2e239134ea482f94754241103`
 
 class WeatherObject {
@@ -7,7 +6,7 @@ class WeatherObject {
     this.name = data.location.name
     this.region = data.location.region
     this.country = data.location.country
-    if (type === "current" || type === "forecast") {
+    if (type === "current") {
       this.condition = data.current.condition.text
       this.icon = data.current.condition.icon
       this.temperature = data.current.temp_c
@@ -17,19 +16,43 @@ class WeatherObject {
       this.cloud = data.current.cloud
       this.humidity = data.current.humidity
       this.last_updated = data.current.last_updated
-    } else if (type === "history") {
+    } else if (type === "history" || type === "forecast") {
       this.condition =
-        data.forecast.forecastday[0].hour[date.hour].condition.text
-      this.icon = data.forecast.forecastday[0].hour[date.hour].condition.icon
-      this.temperature = data.forecast.forecastday[0].hour[date.hour].temp_c
-      this.feelsLike = data.forecast.forecastday[0].hour[date.hour].feelslike_c
+        data.forecast.forecastday[data.forecast.forecastday.length - 1].hour[
+          date.hour
+        ].condition.text
+      this.icon =
+        data.forecast.forecastday[data.forecast.forecastday.length - 1].hour[
+          date.hour
+        ].condition.icon
+      this.temperature =
+        data.forecast.forecastday[data.forecast.forecastday.length - 1].hour[
+          date.hour
+        ].temp_c
+      this.feelsLike =
+        data.forecast.forecastday[data.forecast.forecastday.length - 1].hour[
+          date.hour
+        ].feelslike_c
       this.precipitation =
-        data.forecast.forecastday[0].hour[date.hour].precip_mm
-      this.pressure = data.forecast.forecastday[0].hour[date.hour].pressure_mb
-      this.cloud = data.forecast.forecastday[0].hour[date.hour].cloud
-      this.humidity = data.forecast.forecastday[0].hour[date.hour].humidity
+        data.forecast.forecastday[data.forecast.forecastday.length - 1].hour[
+          date.hour
+        ].precip_mm
+      this.pressure =
+        data.forecast.forecastday[data.forecast.forecastday.length - 1].hour[
+          date.hour
+        ].pressure_mb
+      this.cloud =
+        data.forecast.forecastday[data.forecast.forecastday.length - 1].hour[
+          date.hour
+        ].cloud
+      this.humidity =
+        data.forecast.forecastday[data.forecast.forecastday.length - 1].hour[
+          date.hour
+        ].humidity
       this.last_updated =
-        data.forecast.forecastday[0].hour[date.hour].last_updated
+        data.forecast.forecastday[data.forecast.forecastday.length - 1].hour[
+          date.hour
+        ].last_updated
     }
   }
 }
@@ -77,9 +100,8 @@ async function logTownNames(input) {
   return suggestion
 }
 
-async function display() {
+function display(res) {
   const display = document.querySelector(".display")
-  const chosenDate = document.querySelector("#date").value
 
   while (display.firstChild) {
     display.firstChild.remove()
@@ -92,14 +114,11 @@ async function display() {
   const info = document.createElement("div")
   info.setAttribute("class", "info")
 
-  const town = document.querySelector("#town")
-  let todayDate = new Date()
-  todayDate = date.format(todayDate, "YYYY-MM-DD")
-  //if (chosenDate === todayDate)
-  const res = await logTownWeather(town.value, "current", {})
-
   const regex = /[a-z]*\/[0-9a-z.]*$/gm
   const iconSRC = `./weather/64x64/${res.icon.match(regex)}`
+
+  console.log(iconSRC)
+  //import iconIMG from iconSRC
 
   header.innerHTML = `
   <div class="name">${res.name}</div>
@@ -126,9 +145,34 @@ async function display() {
   display.appendChild(info)
 }
 
+async function chooseAPI() {
+  const town = document.querySelector("#town")
+  let chosenDate = moment(document.querySelector("#date").value)
+  let todayDate = moment(new Date()) //.format("YYYY-MM-DD")
+
+  chosenDate = moment(chosenDate.format("YYYY-MM-DD"))
+  todayDate = moment(todayDate.format("YYYY-MM-DD"))
+  const difference = chosenDate.diff(todayDate, "days") + 1
+  chosenDate = chosenDate.format("YYYY-MM-DD")
+  todayDate = todayDate.format("YYYY-MM-DD")
+  console.log(chosenDate)
+  console.log(todayDate)
+  console.log(difference)
+  if (chosenDate == todayDate) {
+    const res = await logTownWeather(town.value, "current", {})
+    display(res)
+  } else if (chosenDate > todayDate) {
+    const res = await logTownWeather(town.value, "forecast", {
+      date: `&days=${difference}`,
+      hour: `12`,
+    })
+    display(res)
+  }
+}
+
 function init() {
   const confirm = document.querySelector("#confirm")
-  confirm.addEventListener("click", display)
+  confirm.addEventListener("click", chooseAPI)
 }
 
 init()
