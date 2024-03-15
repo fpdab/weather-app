@@ -66,6 +66,7 @@ body {
   font-size: 1.5rem;
 }
 .display .overview .condition {
+  grid-column: span 2;
   padding: 1rem;
   color: rgba(50, 117, 11, 0.7);
   font-weight: 700;
@@ -95,4 +96,34 @@ body {
   justify-content: center;
   align-items: center;
   gap: 2rem;
+}
+
+.input-field .hour {
+  width: 3rem;
+}
+
+.input-field .hour:invalid {
+  background-color: rgba(255, 0, 0, 0.336);
+}
+
+.input-field .name-box input,
+.input-field .toggle-box {
+  width: 12rem;
+}
+
+.input-field .toggle-box {
+  position: absolute;
+  background: white;
+  border-radius: 0.1rem;
+  border-color: black;
+  border: 0.5px solid;
+}
+
+.input-field .toggle-box .suggestion:hover {
+  background-color: whitesmoke;
+  cursor: grab;
+}
+
+.input-field .name-box:has(input:focus) .toggle-box {
+  display: ;
 }

@@ -1,4 +1,3 @@
-import "./styles/main.css"
 const key = `f4e2c2e239134ea482f94754241103`
 
 class WeatherObject {
@@ -6,6 +5,7 @@ class WeatherObject {
     this.name = data.location.name
     this.region = data.location.region
     this.country = data.location.country
+    this.type = type
     if (type === "current") {
       this.condition = data.current.condition.text
       this.icon = data.current.condition.icon
@@ -16,7 +16,7 @@ class WeatherObject {
       this.cloud = data.current.cloud
       this.humidity = data.current.humidity
       this.last_updated = data.current.last_updated
-    } else if (type === "history" || type === "forecast") {
+    } else if (type === "history") {
       this.condition =
         data.forecast.forecastday[data.forecast.forecastday.length - 1].hour[
           date.hour
@@ -52,7 +52,7 @@ class WeatherObject {
       this.last_updated =
         data.forecast.forecastday[data.forecast.forecastday.length - 1].hour[
           date.hour
-        ].last_updated
+        ].time
     }
   }
 }
@@ -67,7 +67,6 @@ async function getData(townID, type, date) {
 
 async function makeTown(townID, type, date) {
   const data = await getData(townID, type, date)
-  console.log(data)
   const town = new WeatherObject(data, type, date)
   return town
 }
@@ -91,6 +90,14 @@ async function getAutocompletion(inp) {
 }
 
 async function logTownWeather(townName, type, date) {
+  const hourInput = document.querySelector(".input-field .hour")
+  if (type === "current" && hourInput !== null) {
+    hourInput.remove()
+  } else if (type === "history" && hourInput !== null) {
+    date.hour = hourInput.value
+    hourInput.remove()
+  }
+
   const town = await makeTown(townName, type, date)
   return town
 }
@@ -117,9 +124,6 @@ function display(res) {
   const regex = /[a-z]*\/[0-9a-z.]*$/gm
   const iconSRC = `./weather/64x64/${res.icon.match(regex)}`
 
-  console.log(iconSRC)
-  //import iconIMG from iconSRC
-
   header.innerHTML = `
   <div class="name">${res.name}</div>
   <div class="region">${res.region}</div>
@@ -143,28 +147,38 @@ function display(res) {
   display.appendChild(header)
   display.appendChild(overview)
   display.appendChild(info)
+
+  if (res.type === "history") {
+    const timeContainer = document.querySelector(".input-field .time")
+    const hourInput = document.createElement("input")
+    hourInput.setAttribute("class", "hour")
+    hourInput.setAttribute("name", "hour")
+    hourInput.setAttribute("type", "number")
+    hourInput.setAttribute("placeholder", 12)
+    hourInput.setAttribute("min", "0")
+    hourInput.setAttribute("max", "23")
+    hourInput.setAttribute("title", "Forecast hour 0-23")
+    timeContainer.appendChild(hourInput)
+  }
 }
 
 async function chooseAPI() {
   const town = document.querySelector("#town")
-  let chosenDate = moment(document.querySelector("#date").value)
-  let todayDate = moment(new Date()) //.format("YYYY-MM-DD")
 
-  chosenDate = moment(chosenDate.format("YYYY-MM-DD"))
-  todayDate = moment(todayDate.format("YYYY-MM-DD"))
-  const difference = chosenDate.diff(todayDate, "days") + 1
-  chosenDate = chosenDate.format("YYYY-MM-DD")
-  todayDate = todayDate.format("YYYY-MM-DD")
-  console.log(chosenDate)
-  console.log(todayDate)
-  console.log(difference)
-  if (chosenDate == todayDate) {
+  let chosenDate = document.querySelector("#date").value
+  let todayDate = new Date()
+  let month = todayDate.getMonth()
+  if (month < 10) {
+    month = `0${month + 1}`
+  }
+  todayDate = `${todayDate.getFullYear()}-${month}-${todayDate.getDate()}`
+  if (chosenDate === todayDate) {
     const res = await logTownWeather(town.value, "current", {})
     display(res)
-  } else if (chosenDate > todayDate) {
-    const res = await logTownWeather(town.value, "forecast", {
-      date: `&days=${difference}`,
-      hour: `12`,
+  } else if (chosenDate !== todayDate) {
+    const res = await logTownWeather(town.value, "history", {
+      date: `&dt=${chosenDate}`,
+      hour: 12,
     })
     display(res)
   }
@@ -173,16 +187,34 @@ async function chooseAPI() {
 function init() {
   const confirm = document.querySelector("#confirm")
   confirm.addEventListener("click", chooseAPI)
+  const townBox = document.querySelector(".input-field #town")
+  townBox.addEventListener("keyup", () => {
+    toggleSuggestions(townBox.value)
+  })
 }
 
 init()
-
-//DOM manipulation template
-//for (let element of suggestion) {
-//    logTownWeather(element.url)
-//  }
-
-//logTownNames("Lon")
 //logTownWeather("Wroclaw", "history", { date: "&dt=2024-03-13", hour: 17 })
-//logTownWeather("London", "forecast", { date: "&days=1" })
 //logTownWeather("Boca Chica", "current", {})
+
+async function toggleSuggestions(currentInput) {
+  const toggleBox = document.querySelector(".toggle-box")
+  const townBox = document.querySelector(".input-field #town")
+
+  while (toggleBox.firstChild) {
+    toggleBox.firstChild.remove()
+  }
+  if (currentInput.length > 2) {
+    const list = await logTownNames(currentInput)
+
+    list.forEach((element) => {
+      const suggestion = document.createElement("div")
+      suggestion.setAttribute("class", "suggestion")
+      suggestion.textContent = element.name
+      suggestion.addEventListener("click", () => {
+        townBox.value = element.name
+      })
+      toggleBox.appendChild(suggestion)
+    })
+  }
+}
